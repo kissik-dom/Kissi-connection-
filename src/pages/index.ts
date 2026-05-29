@@ -7,3 +7,5 @@ export { RoomsPage } from "./RoomsPage";
 export { DiplomaticPage } from "./DiplomaticPage";
 export { MeetingPage } from "./MeetingPage";
 export { AdminPage } from "./AdminPage";
+export { JoinMeetingPage } from "./JoinMeetingPage";
+export { CalendarPage } from "./CalendarPage";

@@ -3,6 +3,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Royal serif font — old money, timeless */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -57,13 +60,15 @@
   --color-royal-cream-dark: #e8e0d0;
   --color-royal-burgundy: #6b1d2a;
   --color-royal-emerald: #1a6b4a;
+
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 :root {
   --sidebar-width: 16rem;
   --sidebar-width-icon: 3rem;
 
-  /* Royal Gold as primary */
   --primary: #0a1628;
   --primary-foreground: #f5f0e8;
   --sidebar-primary: #a08030;
@@ -158,6 +163,11 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+  h1, h2, h3 {
+    font-family: var(--font-serif);
+    letter-spacing: -0.01em;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -199,5 +209,142 @@
       padding-right: 2rem;
       max-width: 1280px;
     }
+  }
+
+  /* Royal heading class — serif, gold shimmer */
+  .royal-heading {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  /* Gold gradient text */
+  .gold-text {
+    background: linear-gradient(135deg, #8a6d28 0%, #c4a84d 40%, #a08030 60%, #d4b85c 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Gold shimmer animation for text */
+  .gold-shimmer {
+    background: linear-gradient(
+      110deg,
+      #8a6d28 0%,
+      #c4a84d 20%,
+      #e8d48b 30%,
+      #c4a84d 40%,
+      #a08030 60%,
+      #c4a84d 80%,
+      #8a6d28 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 6s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0%, 100% { background-position: 200% 0; }
+    50% { background-position: -200% 0; }
+  }
+
+  /* Subtle float animation */
+  .float-gentle {
+    animation: floatGentle 6s ease-in-out infinite;
+  }
+
+  @keyframes floatGentle {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* Pulse glow for gold elements */
+  .glow-gold {
+    animation: glowGold 3s ease-in-out infinite;
+  }
+
+  @keyframes glowGold {
+    0%, 100% { box-shadow: 0 0 20px rgba(160, 128, 48, 0.15); }
+    50% { box-shadow: 0 0 40px rgba(160, 128, 48, 0.3); }
+  }
+
+  /* Coat of arms watermark overlay */
+  .coat-watermark {
+    position: relative;
+  }
+  .coat-watermark::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 500px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 240'%3E%3Cpath d='M100 10 C60 10 20 40 20 90 C20 150 100 230 100 230 C100 230 180 150 180 90 C180 40 140 10 100 10Z' fill='none' stroke='%23a08030' stroke-width='2'/%3E%3Cpath d='M100 35 L108 55 L130 55 L112 68 L120 88 L100 75 L80 88 L88 68 L70 55 L92 55Z' fill='%23a08030'/%3E%3Cpath d='M65 100 L135 100' stroke='%23a08030' stroke-width='1.5'/%3E%3Cpath d='M60 115 C60 115 100 145 140 115' fill='none' stroke='%23a08030' stroke-width='1.5'/%3E%3Cpath d='M70 130 C70 130 100 155 130 130' fill='none' stroke='%23a08030' stroke-width='1'/%3E%3Ccircle cx='100' cy='170' r='12' fill='none' stroke='%23a08030' stroke-width='1'/%3E%3Cpath d='M96 166 L100 158 L104 166' fill='%23a08030'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Gold gradient background for backend pages */
+  .bg-royal-gradient {
+    background: linear-gradient(135deg, #0a1628 0%, #132240 40%, #1a2d50 60%, #0a1628 100%);
+  }
+
+  /* Decorative gold line */
+  .gold-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #a08030 50%, transparent 100%);
+  }
+
+  /* Decorative corner flourishes */
+  .royal-corner-tl::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 30px;
+    height: 30px;
+    border-top: 2px solid rgba(160, 128, 48, 0.4);
+    border-left: 2px solid rgba(160, 128, 48, 0.4);
+    pointer-events: none;
+  }
+  .royal-corner-br::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 30px;
+    height: 30px;
+    border-bottom: 2px solid rgba(160, 128, 48, 0.4);
+    border-right: 2px solid rgba(160, 128, 48, 0.4);
+    pointer-events: none;
+  }
+
+  /* Meeting toolbar (Zoom-style) */
+  .meeting-toolbar {
+    background: rgba(10, 22, 40, 0.95);
+    backdrop-filter: blur(20px);
+  }
+
+  /* Participant video tile */
+  .video-tile {
+    background: linear-gradient(180deg, #0d1a2e, #0a1628);
+    border: 1px solid rgba(160, 128, 48, 0.1);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    position: relative;
+  }
+}
+
+/* Smooth page transitions */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
   }
 }

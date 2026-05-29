@@ -1,6 +1,7 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useMutation, useQuery } from "convex/react";
-import { ChevronRight, Loader2, Moon, Palette, Sun, User } from "lucide-react";
+import { motion } from "framer-motion";
+import { ChevronRight, Crown, Loader2, Moon, Palette, Settings, Sun, User } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -20,6 +21,15 @@ import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/contexts/ThemeContext";
 import { api } from "../../convex/_generated/api";
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+  }),
+};
+
 export function SettingsPage() {
   const user = useQuery(api.auth.currentUser);
   const { theme, toggleTheme, switchable } = useTheme();
@@ -32,19 +42,15 @@ export function SettingsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [passwordStep, setPasswordStep] = useState<"request" | "verify">(
-    "request",
-  );
+  const [passwordStep, setPasswordStep] = useState<"request" | "verify">("request");
 
   const handleRequestPasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     const formData = new FormData();
     formData.append("email", user?.email || "");
     formData.append("flow", "reset");
-
     try {
       await signIn("password", formData);
       setPasswordStep("verify");
@@ -59,11 +65,9 @@ export function SettingsPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     const formData = new FormData(e.currentTarget);
     formData.append("email", user?.email || "");
     formData.append("flow", "reset-verification");
-
     try {
       await signIn("password", formData);
       setSuccess("Password changed successfully!");
@@ -82,7 +86,6 @@ export function SettingsPage() {
   const handleDeleteAccount = async () => {
     setLoading(true);
     setError("");
-
     try {
       await deleteAccount();
       await signOut();
@@ -94,146 +97,152 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="space-y-8 max-w-2xl mx-auto">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+    <motion.div className="space-y-8 max-w-2xl mx-auto" initial="hidden" animate="visible">
+      {/* Header */}
+      <motion.div custom={0} variants={fadeUp}>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2 royal-heading">
+          <Settings className="size-6 text-royal-gold" />
           Settings
         </h1>
-        <p className="text-muted-foreground mt-1">Page subtitle goes here</p>
-      </div>
+        <p className="text-muted-foreground mt-1 text-sm font-sans">
+          Manage your account and preferences
+        </p>
+      </motion.div>
 
-      <Card className="overflow-hidden">
-        <div className="h-20 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent" />
-        <CardContent className="-mt-10 pb-6">
-          <div className="flex items-end gap-4">
-            <Avatar className="size-16 border-4 border-background shadow-lg">
-              <AvatarFallback className="text-xl bg-primary text-primary-foreground">
-                {user?.name?.charAt(0).toUpperCase() || (
-                  <User className="size-6" />
-                )}
-              </AvatarFallback>
-            </Avatar>
-            <div className="pb-1">
-              <p className="font-semibold">{user?.name || "User"}</p>
-              <p className="text-sm text-muted-foreground">{user?.email}</p>
+      {/* Profile card with gradient banner */}
+      <motion.div custom={1} variants={fadeUp}>
+        <Card className="overflow-hidden border-royal-gold/10">
+          <div className="h-20 bg-gradient-to-r from-royal-navy via-royal-navy-light to-royal-navy relative">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_right,rgba(160,128,48,0.15)_0%,transparent_60%)]" />
+            <div className="absolute top-3 right-4 opacity-[0.06]">
+              <Crown className="size-14 text-royal-gold" />
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Palette className="size-4 text-muted-foreground" />
-            Appearance
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-1">
-          {switchable ? (
-            <div className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50">
-              <div className="flex items-center gap-4">
-                <div className="size-10 rounded-full bg-secondary flex items-center justify-center">
-                  {theme === "light" ? (
-                    <Moon className="size-5 text-foreground" />
-                  ) : (
-                    <Sun className="size-5 text-foreground" />
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor="dark-mode" className="font-medium">
-                    Dark mode
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Toggle description goes here
-                  </p>
-                </div>
+          <CardContent className="-mt-10 pb-6">
+            <div className="flex items-end gap-4">
+              <Avatar className="size-16 border-4 border-background shadow-lg">
+                <AvatarFallback className="text-xl bg-royal-gold text-royal-navy font-bold font-serif">
+                  {user?.name?.charAt(0).toUpperCase() || <User className="size-6" />}
+                </AvatarFallback>
+              </Avatar>
+              <div className="pb-1">
+                <p className="font-semibold font-sans">{user?.name || "User"}</p>
+                <p className="text-sm text-muted-foreground font-sans">{user?.email}</p>
               </div>
-              <Switch
-                id="dark-mode"
-                checked={theme === "dark"}
-                onCheckedChange={toggleTheme}
-              />
             </div>
-          ) : (
-            <p className="text-sm text-muted-foreground px-4 py-2">
-              Theme follows your system preference
-            </p>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </motion.div>
 
-      <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <User className="size-4 text-muted-foreground" />
-            Account
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-1">
-          <button
-            onClick={() => setChangePasswordOpen(true)}
-            className="w-full flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50 text-left"
-          >
-            <div>
-              <p className="font-medium text-sm">Change password</p>
-              <p className="text-sm text-muted-foreground">
-                Update your password
+      {/* Appearance */}
+      <motion.div custom={2} variants={fadeUp}>
+        <Card className="border-royal-gold/10">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-base font-sans">
+              <Palette className="size-4 text-royal-gold" />
+              Appearance
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-1">
+            {switchable ? (
+              <div className="flex items-center justify-between rounded-lg border border-royal-gold/10 p-4 transition-colors hover:bg-muted/50">
+                <div className="flex items-center gap-4">
+                  <div className="size-10 rounded-full bg-gradient-to-br from-royal-gold/15 to-royal-gold/5 flex items-center justify-center">
+                    {theme === "light" ? (
+                      <Moon className="size-5 text-royal-navy" />
+                    ) : (
+                      <Sun className="size-5 text-royal-gold" />
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="dark-mode" className="font-medium font-sans text-sm">
+                      Dark mode
+                    </Label>
+                    <p className="text-xs text-muted-foreground font-sans">
+                      Switch between light and dark themes
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  id="dark-mode"
+                  checked={theme === "dark"}
+                  onCheckedChange={toggleTheme}
+                />
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground px-4 py-2 font-sans">
+                Theme follows your system preference
               </p>
-            </div>
-            <ChevronRight className="size-4 text-muted-foreground" />
-          </button>
-          <button
-            onClick={() => setDeleteAccountOpen(true)}
-            className="w-full flex items-center justify-between rounded-lg border border-destructive/20 p-4 transition-colors hover:bg-destructive/5 text-left"
-          >
-            <div>
-              <p className="font-medium text-sm text-destructive">
-                Delete account
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Permanently delete your account
-              </p>
-            </div>
-            <ChevronRight className="size-4 text-destructive" />
-          </button>
-        </CardContent>
-      </Card>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
 
+      {/* Account */}
+      <motion.div custom={3} variants={fadeUp}>
+        <Card className="border-royal-gold/10">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-base font-sans">
+              <User className="size-4 text-royal-gold" />
+              Account
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <button
+              type="button"
+              onClick={() => setChangePasswordOpen(true)}
+              className="w-full flex items-center justify-between rounded-lg border border-royal-gold/10 p-4 transition-colors hover:bg-muted/50 text-left"
+            >
+              <div>
+                <p className="font-medium text-sm font-sans">Change password</p>
+                <p className="text-xs text-muted-foreground font-sans">
+                  Update your account password
+                </p>
+              </div>
+              <ChevronRight className="size-4 text-muted-foreground" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setDeleteAccountOpen(true)}
+              className="w-full flex items-center justify-between rounded-lg border border-destructive/20 p-4 transition-colors hover:bg-destructive/5 text-left"
+            >
+              <div>
+                <p className="font-medium text-sm text-destructive font-sans">Delete account</p>
+                <p className="text-xs text-muted-foreground font-sans">
+                  Permanently delete your account and data
+                </p>
+              </div>
+              <ChevronRight className="size-4 text-destructive" />
+            </button>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Change password dialog */}
       <Dialog open={changePasswordOpen} onOpenChange={setChangePasswordOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Change Password</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="royal-heading">Change Password</DialogTitle>
+            <DialogDescription className="font-sans">
               {passwordStep === "request"
                 ? "We'll send a verification code to your email."
                 : "Enter the code from your email and your new password."}
             </DialogDescription>
           </DialogHeader>
-
           {passwordStep === "request" ? (
             <form onSubmit={handleRequestPasswordReset}>
               <div className="py-4">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground font-sans">
                   A reset code will be sent to:{" "}
-                  <span className="font-medium text-foreground">
-                    {user?.email}
-                  </span>
+                  <span className="font-medium text-foreground">{user?.email}</span>
                 </p>
               </div>
               {error && (
-                <p className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2 mb-4">
-                  {error}
-                </p>
+                <p className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2 mb-4 font-sans">{error}</p>
               )}
               <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setChangePasswordOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={loading}>
+                <Button type="button" variant="outline" onClick={() => setChangePasswordOpen(false)} className="font-sans">Cancel</Button>
+                <Button type="submit" disabled={loading} className="bg-royal-navy hover:bg-royal-navy-light text-royal-cream font-sans">
                   {loading && <Loader2 className="size-4 animate-spin" />}
                   Send Code
                 </Button>
@@ -242,50 +251,18 @@ export function SettingsPage() {
           ) : (
             <form onSubmit={handleResetPassword} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="code">Verification Code</Label>
-                <Input
-                  id="code"
-                  name="code"
-                  type="text"
-                  placeholder="Enter code from email"
-                  autoComplete="one-time-code"
-                  required
-                />
+                <Label className="font-sans text-xs">Verification Code</Label>
+                <Input name="code" type="text" placeholder="Enter code from email" autoComplete="one-time-code" required className="border-royal-gold/20 font-sans" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="newPassword">New Password</Label>
-                <Input
-                  id="newPassword"
-                  name="newPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  minLength={6}
-                  autoComplete="new-password"
-                  required
-                />
+                <Label className="font-sans text-xs">New Password</Label>
+                <Input name="newPassword" type="password" placeholder="••••••••" minLength={6} autoComplete="new-password" required className="border-royal-gold/20 font-sans" />
               </div>
-              {error && (
-                <p className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2">
-                  {error}
-                </p>
-              )}
-              {success && (
-                <p className="text-sm text-success bg-success/10 rounded-lg px-3 py-2">
-                  {success}
-                </p>
-              )}
+              {error && <p className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2 font-sans">{error}</p>}
+              {success && <p className="text-sm text-success bg-success/10 rounded-lg px-3 py-2 font-sans">{success}</p>}
               <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setPasswordStep("request");
-                    setError("");
-                  }}
-                >
-                  Back
-                </Button>
-                <Button type="submit" disabled={loading}>
+                <Button type="button" variant="outline" onClick={() => { setPasswordStep("request"); setError(""); }} className="font-sans">Back</Button>
+                <Button type="submit" disabled={loading} className="bg-royal-navy hover:bg-royal-navy-light text-royal-cream font-sans">
                   {loading && <Loader2 className="size-4 animate-spin" />}
                   Change Password
                 </Button>
@@ -295,43 +272,30 @@ export function SettingsPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Delete account dialog */}
       <Dialog open={deleteAccountOpen} onOpenChange={setDeleteAccountOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Account</DialogTitle>
-            <DialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove all your data.
+            <DialogTitle className="royal-heading">Delete Account</DialogTitle>
+            <DialogDescription className="font-sans">
+              This action cannot be undone. This will permanently delete your account and remove all your data.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground font-sans">
               Are you sure you want to delete your account?
             </p>
           </div>
-          {error && (
-            <p className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2">
-              {error}
-            </p>
-          )}
+          {error && <p className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2 font-sans">{error}</p>}
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteAccountOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDeleteAccount}
-              disabled={loading}
-            >
+            <Button variant="outline" onClick={() => setDeleteAccountOpen(false)} className="font-sans">Cancel</Button>
+            <Button variant="destructive" onClick={handleDeleteAccount} disabled={loading} className="font-sans">
               {loading && <Loader2 className="size-4 animate-spin" />}
               Delete Account
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 }

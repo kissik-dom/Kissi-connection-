@@ -8,8 +8,10 @@ import { Toaster } from "./components/ui/sonner";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import {
   AdminPage,
+  CalendarPage,
   DashboardPage,
   DiplomaticPage,
+  JoinMeetingPage,
   LandingPage,
   LoginPage,
   MeetingPage,
@@ -24,6 +26,7 @@ function App() {
       <ThemeProvider defaultTheme="light" switchable>
         <Toaster />
         <Routes>
+          {/* Public routes */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<LandingPage />} />
             <Route element={<PublicOnlyRoute />}>
@@ -32,12 +35,19 @@ function App() {
             </Route>
           </Route>
 
+          {/* Join meeting — public, no auth required */}
+          <Route path="/join" element={<JoinMeetingPage />} />
+
+          {/* Meeting page — standalone layout (Zoom-like fullscreen) */}
+          <Route path="/meeting/:slug" element={<MeetingPage />} />
+
+          {/* Protected app routes */}
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/rooms" element={<RoomsPage />} />
               <Route path="/diplomatic" element={<DiplomaticPage />} />
-              <Route path="/meeting/:slug" element={<MeetingPage />} />
+              <Route path="/calendar" element={<CalendarPage />} />
               <Route path="/admin" element={<AdminPage />} />
               <Route path="/settings" element={<SettingsPage />} />
             </Route>

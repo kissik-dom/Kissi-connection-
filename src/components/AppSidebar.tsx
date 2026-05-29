@@ -1,9 +1,11 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
 import {
+  Calendar,
   Crown,
   Globe,
   LayoutDashboard,
+  LogIn,
   LogOut,
   Moon,
   Settings,
@@ -41,6 +43,8 @@ const mainNav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/rooms", label: "Meeting Rooms", icon: Video },
   { href: "/diplomatic", label: "Diplomatic Connect", icon: Globe },
+  { href: "/calendar", label: "Calendar", icon: Calendar },
+  { href: "/join", label: "Join Meeting", icon: LogIn },
 ];
 
 const adminNav = [

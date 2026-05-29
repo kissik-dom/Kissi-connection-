@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from "convex/react";
+import { motion } from "framer-motion";
 import {
   Calendar,
   Clock,
@@ -65,6 +66,15 @@ const meetingTypeLabels = {
   ceremony: { label: "Royal Ceremony", color: "border-royal-navy/30 text-royal-navy bg-royal-navy/5" },
 };
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.06, duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+  }),
+};
+
 export function DiplomaticPage() {
   const rooms = useQuery(api.rooms.listActive);
   const meetings = useQuery(api.meetings.list);
@@ -85,27 +95,14 @@ export function DiplomaticPage() {
   const [isRecorded, setIsRecorded] = useState(false);
 
   const handleCreate = async () => {
-    if (!title.trim()) {
-      toast.error("Meeting title is required");
-      return;
-    }
-    if (!roomId) {
-      toast.error("Please select a room");
-      return;
-    }
-    if (!date || !time) {
-      toast.error("Please set date and time");
-      return;
-    }
+    if (!title.trim()) { toast.error("Title required"); return; }
+    if (!roomId) { toast.error("Select a room"); return; }
+    if (!date || !time) { toast.error("Set date and time"); return; }
 
     setCreating(true);
     try {
       const scheduledAt = new Date(`${date}T${time}`).getTime();
-      if (scheduledAt < Date.now()) {
-        toast.error("Meeting time must be in the future");
-        setCreating(false);
-        return;
-      }
+      if (scheduledAt < Date.now()) { toast.error("Must be in the future"); setCreating(false); return; }
       await createMeeting({
         title: title.trim(),
         description: description.trim() || undefined,
@@ -115,102 +112,69 @@ export function DiplomaticPage() {
         agenda: agenda.trim() || undefined,
         isRecorded,
       });
-      toast.success("Meeting scheduled successfully");
+      toast.success("Meeting scheduled");
       setOpen(false);
-      setTitle("");
-      setDescription("");
-      setRoomId("");
-      setDate("");
-      setTime("");
-      setAgenda("");
-      setIsRecorded(false);
-    } catch {
-      toast.error("Failed to schedule meeting");
-    } finally {
-      setCreating(false);
-    }
+      setTitle(""); setDescription(""); setRoomId(""); setDate(""); setTime(""); setAgenda(""); setIsRecorded(false);
+    } catch { toast.error("Failed to schedule"); }
+    finally { setCreating(false); }
   };
 
-  const handleCancel = async (meetingId: Id<"meetings">) => {
-    try {
-      await cancelMeeting({ id: meetingId, status: "cancelled" });
-      toast.success("Meeting cancelled");
-    } catch {
-      toast.error("Failed to cancel meeting");
-    }
+  const handleCancel = async (id: Id<"meetings">) => {
+    try { await cancelMeeting({ id, status: "cancelled" }); toast.success("Cancelled"); }
+    catch { toast.error("Failed"); }
   };
 
-  const handleDelete = async (meetingId: Id<"meetings">) => {
-    try {
-      await removeMeeting({ id: meetingId });
-      toast.success("Meeting deleted");
-    } catch {
-      toast.error("Failed to delete meeting");
-    }
+  const handleDelete = async (id: Id<"meetings">) => {
+    try { await removeMeeting({ id }); toast.success("Deleted"); }
+    catch { toast.error("Failed"); }
   };
 
-  const pastMeetings = meetings?.filter(
-    (m) => m.status === "ended" || m.status === "cancelled"
-  ) ?? [];
+  const pastMeetings = meetings?.filter((m) => m.status === "ended" || m.status === "cancelled") ?? [];
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <motion.div className="space-y-8" initial="hidden" animate="visible">
+      {/* Header */}
+      <motion.div custom={0} variants={fadeUp} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2 royal-heading">
             <Globe className="size-6 text-royal-gold" />
             Diplomatic Connect
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm font-sans">
             Schedule and manage diplomatic meetings & royal ceremonies
           </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-royal-navy hover:bg-royal-navy-light text-royal-cream">
+            <Button className="bg-royal-navy hover:bg-royal-navy-light text-royal-cream font-sans">
               <Plus className="size-4" />
               Schedule Meeting
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
+              <DialogTitle className="flex items-center gap-2 royal-heading">
                 <Crown className="size-5 text-royal-gold" />
                 Schedule Meeting
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="font-sans">
                 Arrange a new diplomatic session or royal ceremony
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 pt-2 max-h-[60vh] overflow-y-auto">
               <div className="space-y-2">
-                <Label htmlFor="title">Meeting Title</Label>
-                <Input
-                  id="title"
-                  placeholder="e.g., Annual Diplomatic Summit"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="border-royal-gold/20 focus-visible:ring-royal-gold/30"
-                />
+                <Label className="font-sans text-xs">Title</Label>
+                <Input placeholder="e.g., Annual Diplomatic Summit" value={title} onChange={(e) => setTitle(e.target.value)} className="border-royal-gold/20 focus-visible:ring-royal-gold/30 font-sans" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="desc">Description</Label>
-                <Textarea
-                  id="desc"
-                  placeholder="Brief description of the meeting..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="border-royal-gold/20 focus-visible:ring-royal-gold/30"
-                  rows={2}
-                />
+                <Label className="font-sans text-xs">Description</Label>
+                <Textarea placeholder="Brief description..." value={description} onChange={(e) => setDescription(e.target.value)} className="border-royal-gold/20 focus-visible:ring-royal-gold/30 font-sans" rows={2} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Meeting Type</Label>
+                  <Label className="font-sans text-xs">Type</Label>
                   <Select value={meetingType} onValueChange={(v) => setMeetingType(v as typeof meetingType)}>
-                    <SelectTrigger className="border-royal-gold/20">
-                      <SelectValue />
-                    </SelectTrigger>
+                    <SelectTrigger className="border-royal-gold/20 font-sans"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="diplomatic">Diplomatic</SelectItem>
                       <SelectItem value="council">Council</SelectItem>
@@ -220,16 +184,12 @@ export function DiplomaticPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Room</Label>
+                  <Label className="font-sans text-xs">Room</Label>
                   <Select value={roomId} onValueChange={setRoomId}>
-                    <SelectTrigger className="border-royal-gold/20">
-                      <SelectValue placeholder="Select room" />
-                    </SelectTrigger>
+                    <SelectTrigger className="border-royal-gold/20 font-sans"><SelectValue placeholder="Select" /></SelectTrigger>
                     <SelectContent>
                       {rooms?.map((room) => (
-                        <SelectItem key={room._id} value={room._id}>
-                          {room.name}
-                        </SelectItem>
+                        <SelectItem key={room._id} value={room._id}>{room.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -237,149 +197,92 @@ export function DiplomaticPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="date">Date</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="border-royal-gold/20"
-                  />
+                  <Label className="font-sans text-xs">Date</Label>
+                  <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="border-royal-gold/20 font-sans" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="time">Time</Label>
-                  <Input
-                    id="time"
-                    type="time"
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
-                    className="border-royal-gold/20"
-                  />
+                  <Label className="font-sans text-xs">Time</Label>
+                  <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="border-royal-gold/20 font-sans" />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="agenda">Agenda</Label>
-                <Textarea
-                  id="agenda"
-                  placeholder="Meeting agenda items..."
-                  value={agenda}
-                  onChange={(e) => setAgenda(e.target.value)}
-                  className="border-royal-gold/20 focus-visible:ring-royal-gold/30"
-                  rows={3}
-                />
+                <Label className="font-sans text-xs">Agenda</Label>
+                <Textarea placeholder="Meeting agenda items..." value={agenda} onChange={(e) => setAgenda(e.target.value)} className="border-royal-gold/20 focus-visible:ring-royal-gold/30 font-sans" rows={3} />
               </div>
               <div className="flex items-center justify-between rounded-lg border border-royal-gold/20 p-3">
-                <Label htmlFor="record" className="text-sm">
-                  Record Meeting
-                </Label>
-                <Switch
-                  id="record"
-                  checked={isRecorded}
-                  onCheckedChange={setIsRecorded}
-                />
+                <Label className="text-sm font-sans">Record Meeting</Label>
+                <Switch checked={isRecorded} onCheckedChange={setIsRecorded} />
               </div>
-              <Button
-                onClick={handleCreate}
-                disabled={creating}
-                className="w-full bg-royal-navy hover:bg-royal-navy-light text-royal-cream"
-              >
+              <Button onClick={handleCreate} disabled={creating} className="w-full bg-royal-navy hover:bg-royal-navy-light text-royal-cream font-sans">
                 {creating ? "Scheduling..." : "Schedule Meeting"}
               </Button>
             </div>
           </DialogContent>
         </Dialog>
-      </div>
+      </motion.div>
 
-      <Tabs defaultValue="upcoming" className="space-y-6">
-        <TabsList className="bg-muted/60 border border-royal-gold/10">
-          <TabsTrigger value="upcoming" className="data-[state=active]:bg-card">
-            Upcoming
-          </TabsTrigger>
-          <TabsTrigger value="all" className="data-[state=active]:bg-card">
-            All Meetings
-          </TabsTrigger>
-          <TabsTrigger value="past" className="data-[state=active]:bg-card">
-            Past
-          </TabsTrigger>
-        </TabsList>
+      {/* Tabs */}
+      <motion.div custom={1} variants={fadeUp}>
+        <Tabs defaultValue="upcoming" className="space-y-6">
+          <TabsList className="bg-muted/60 border border-royal-gold/10">
+            <TabsTrigger value="upcoming" className="data-[state=active]:bg-card font-sans text-xs">Upcoming</TabsTrigger>
+            <TabsTrigger value="all" className="data-[state=active]:bg-card font-sans text-xs">All Meetings</TabsTrigger>
+            <TabsTrigger value="past" className="data-[state=active]:bg-card font-sans text-xs">Past</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="upcoming" className="space-y-4">
-          {!upcomingMeetings || upcomingMeetings.length === 0 ? (
-            <Card className="border-royal-gold/10">
-              <CardContent className="py-16 text-center">
-                <Calendar className="size-12 mx-auto mb-4 text-royal-gold/30" />
-                <h3 className="text-lg font-semibold mb-2">No upcoming meetings</h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Schedule a diplomatic meeting to get started
-                </p>
-                <Button
-                  onClick={() => setOpen(true)}
-                  className="bg-royal-navy hover:bg-royal-navy-light text-royal-cream"
-                >
-                  <Plus className="size-4" />
-                  Schedule Meeting
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            upcomingMeetings.map((meeting) => (
-              <MeetingCard
-                key={meeting._id}
-                meeting={meeting}
-                onCancel={handleCancel}
-                onDelete={handleDelete}
-              />
-            ))
-          )}
-        </TabsContent>
+          <TabsContent value="upcoming" className="space-y-4">
+            {!upcomingMeetings || upcomingMeetings.length === 0 ? (
+              <Card className="border-royal-gold/10">
+                <CardContent className="py-16 text-center">
+                  <Calendar className="size-12 mx-auto mb-4 text-royal-gold/20" />
+                  <h3 className="text-lg font-semibold mb-2 royal-heading">No upcoming meetings</h3>
+                  <p className="text-muted-foreground text-sm mb-4 font-sans">Schedule a diplomatic meeting to get started</p>
+                  <Button onClick={() => setOpen(true)} className="bg-royal-navy hover:bg-royal-navy-light text-royal-cream font-sans">
+                    <Plus className="size-4" /> Schedule Meeting
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              upcomingMeetings.map((m) => (
+                <MeetingCard key={m._id} meeting={m} onCancel={handleCancel} onDelete={handleDelete} />
+              ))
+            )}
+          </TabsContent>
 
-        <TabsContent value="all" className="space-y-4">
-          {!meetings || meetings.length === 0 ? (
-            <Card className="border-royal-gold/10">
-              <CardContent className="py-16 text-center">
-                <Calendar className="size-12 mx-auto mb-4 text-royal-gold/30" />
-                <h3 className="text-lg font-semibold mb-2">No meetings yet</h3>
-                <p className="text-muted-foreground text-sm">
-                  Your meetings will appear here
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            meetings.map((meeting) => (
-              <MeetingCard
-                key={meeting._id}
-                meeting={meeting}
-                onCancel={handleCancel}
-                onDelete={handleDelete}
-              />
-            ))
-          )}
-        </TabsContent>
+          <TabsContent value="all" className="space-y-4">
+            {!meetings || meetings.length === 0 ? (
+              <Card className="border-royal-gold/10">
+                <CardContent className="py-16 text-center">
+                  <Calendar className="size-12 mx-auto mb-4 text-royal-gold/20" />
+                  <h3 className="text-lg font-semibold mb-2 royal-heading">No meetings yet</h3>
+                  <p className="text-muted-foreground text-sm font-sans">Your meetings will appear here</p>
+                </CardContent>
+              </Card>
+            ) : (
+              meetings.map((m) => (
+                <MeetingCard key={m._id} meeting={m} onCancel={handleCancel} onDelete={handleDelete} />
+              ))
+            )}
+          </TabsContent>
 
-        <TabsContent value="past" className="space-y-4">
-          {pastMeetings.length === 0 ? (
-            <Card className="border-royal-gold/10">
-              <CardContent className="py-16 text-center">
-                <Clock className="size-12 mx-auto mb-4 text-royal-gold/30" />
-                <h3 className="text-lg font-semibold mb-2">No past meetings</h3>
-                <p className="text-muted-foreground text-sm">
-                  Completed meetings will appear here
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            pastMeetings.map((meeting) => (
-              <MeetingCard
-                key={meeting._id}
-                meeting={meeting}
-                onCancel={handleCancel}
-                onDelete={handleDelete}
-              />
-            ))
-          )}
-        </TabsContent>
-      </Tabs>
-    </div>
+          <TabsContent value="past" className="space-y-4">
+            {pastMeetings.length === 0 ? (
+              <Card className="border-royal-gold/10">
+                <CardContent className="py-16 text-center">
+                  <Clock className="size-12 mx-auto mb-4 text-royal-gold/20" />
+                  <h3 className="text-lg font-semibold mb-2 royal-heading">No past meetings</h3>
+                  <p className="text-muted-foreground text-sm font-sans">Completed meetings will appear here</p>
+                </CardContent>
+              </Card>
+            ) : (
+              pastMeetings.map((m) => (
+                <MeetingCard key={m._id} meeting={m} onCancel={handleCancel} onDelete={handleDelete} />
+              ))
+            )}
+          </TabsContent>
+        </Tabs>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -410,11 +313,13 @@ function MeetingCard({
   };
 
   return (
-    <Card className="border-royal-gold/10 hover:border-royal-gold/25 transition-all">
+    <Card className="border-royal-gold/10 hover:border-royal-gold/25 transition-all overflow-hidden">
+      {/* Subtle gradient top */}
+      <div className="h-0.5 bg-gradient-to-r from-royal-gold/20 via-royal-gold/10 to-transparent" />
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="text-lg flex items-center gap-2 font-sans">
               {meeting.title}
               {meeting.status === "live" && (
                 <span className="inline-flex items-center gap-1 text-xs font-medium text-red-500">
@@ -424,21 +329,17 @@ function MeetingCard({
               )}
             </CardTitle>
             {meeting.description && (
-              <CardDescription>{meeting.description}</CardDescription>
+              <CardDescription className="font-sans text-xs">{meeting.description}</CardDescription>
             )}
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <Badge variant="outline" className={`text-xs ${typeInfo.color}`}>
-              {typeInfo.label}
-            </Badge>
-            <Badge variant="outline" className={`text-xs capitalize ${statusColors[meeting.status]}`}>
-              {meeting.status}
-            </Badge>
+            <Badge variant="outline" className={`text-[10px] font-sans ${typeInfo.color}`}>{typeInfo.label}</Badge>
+            <Badge variant="outline" className={`text-[10px] capitalize font-sans ${statusColors[meeting.status]}`}>{meeting.status}</Badge>
           </div>
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+        <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4 font-sans">
           <span className="flex items-center gap-1.5">
             <Calendar className="size-3.5" />
             {formatDate(meeting.scheduledAt)}
@@ -455,40 +356,25 @@ function MeetingCard({
           )}
         </div>
         {meeting.agenda && (
-          <div className="rounded-lg bg-muted/50 p-3 mb-4 text-sm text-muted-foreground">
-            <p className="font-medium text-foreground text-xs mb-1">Agenda</p>
-            <p className="whitespace-pre-line text-xs">{meeting.agenda}</p>
+          <div className="rounded-lg bg-muted/50 p-3 mb-4 text-xs">
+            <p className="font-medium text-foreground text-[10px] mb-1 uppercase tracking-wider font-sans">Agenda</p>
+            <p className="whitespace-pre-line text-muted-foreground font-sans">{meeting.agenda}</p>
           </div>
         )}
         <div className="flex gap-2">
           {meeting.status === "scheduled" && (
             <>
-              <Button
-                size="sm"
-                className="bg-royal-navy hover:bg-royal-navy-light text-royal-cream text-xs"
-              >
-                <Video className="size-3" />
-                Start Meeting
+              <Button size="sm" className="bg-royal-navy hover:bg-royal-navy-light text-royal-cream text-xs font-sans">
+                <Video className="size-3" /> Start Meeting
               </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="text-xs border-destructive/20 text-destructive hover:bg-destructive/10"
-                onClick={() => onCancel(meeting._id)}
-              >
+              <Button size="sm" variant="outline" className="text-xs border-destructive/20 text-destructive hover:bg-destructive/10 font-sans" onClick={() => onCancel(meeting._id)}>
                 Cancel
               </Button>
             </>
           )}
           {(meeting.status === "ended" || meeting.status === "cancelled") && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="text-xs border-destructive/20 text-destructive hover:bg-destructive/10"
-              onClick={() => onDelete(meeting._id)}
-            >
-              <Trash2 className="size-3" />
-              Delete
+            <Button size="sm" variant="outline" className="text-xs border-destructive/20 text-destructive hover:bg-destructive/10 font-sans" onClick={() => onDelete(meeting._id)}>
+              <Trash2 className="size-3" /> Delete
             </Button>
           )}
         </div>
