@@ -1,44 +1,84 @@
-# Kingdom Connection — Sovereign Video Conferencing
+# 👑 Royal Kingdom Connection
 
-Secure video conferencing platform for **The Royal Kissi Kingdom**.
+The official diplomatic video conferencing platform of **The Royal Kissi Kingdom**.
 
-Zoom-like functionality for heads of state, banking partners, and authorized guests — encrypted, invite-only, AI-enhanced.
+Connect with dignitaries, host council meetings, and conduct royal ceremonies with sovereign-grade security and elegance.
 
 ## Features
 
-- **1-on-1 & Group Calls** — HD video/audio, up to 50 participants
-- **Screen Sharing** — Share screen, windows, or tabs during calls
-- **In-Call Chat** — Real-time text chat with file sharing
-- **Call Recording** — Record and archive meetings
-- **Virtual Backgrounds** — Kingdom-themed backgrounds
-- **Calendar Integration** — Schedule and manage meetings
-- **E2EE Encryption** — CRYSTALS-Kyber post-quantum encryption
-- **Invite-Only Access** — Authorized guests only
-
-### Phase 2 (Advanced AI)
-- **DeepFaceLive** — Real-time AI face swap
-- **MuseTalk** — Audio-driven lip synchronization
-- **Gaze Correction** — AI eye contact correction
-- *Requires cloud GPU ($50-200/month)*
-
-## Pages (10)
-
-Landing, Dashboard, New Meeting, Meeting Room, Recordings, Calendar, Contacts, AI Avatar, Settings, Admin
+- 🏰 **Meeting Rooms** — Create diplomatic, council, public, and private rooms with unique join links
+- 🌍 **Diplomatic Connect** — Schedule meetings with agenda management, recording toggle, and multiple meeting types
+- 📹 **Video Conferencing** — HD video calls with camera/mic controls, screen sharing, and virtual backgrounds
+- 🎭 **Royal Virtual Backgrounds** — Throne Room, Council Chamber, Royal Garden, Diplomatic Hall, and Ceremony Hall
+- 🛡️ **Admin Panel** — Full management of rooms, meetings, and recordings
+- 📊 **Dashboard** — Real-time stats, upcoming meetings, active rooms, and quick actions
+- 🔐 **Authentication** — Secure signup/login with email and password
 
 ## Tech Stack
 
-- **Frontend:** React + Vite + Tailwind CSS
-- **Video Engine:** LiveKit or Jitsi (open-source)
-- **AI Pipeline:** DeepFaceLive + MuseTalk (GPU required)
-- **Hosting:** connection.kissikingdom.com (Vercel)
+- **Frontend:** React 19 + TypeScript + Vite
+- **UI:** Tailwind CSS v4 + shadcn/ui
+- **Backend:** Convex (real-time database & serverless functions)
+- **Auth:** Convex Auth with password-based authentication
+- **Hosting:** Vercel (frontend) + Convex Cloud (backend)
+- **Routing:** React Router v7
 
-## Setup
+## Design System
+
+| Color | Hex | Usage |
+|-------|-----|-------|
+| Royal Navy | `#0a1628` | Primary backgrounds, text |
+| Royal Gold | `#a08030` | Accents, highlights, branding |
+| Royal Cream | `#f5f0e8` | Page backgrounds |
+| Burgundy | `#6b1d2a` | Council badges |
+| Emerald | `#1a6b4a` | Success states, public badges |
+
+Light and dark modes supported.
+
+## Getting Started
+
+### Prerequisites
+- [Bun](https://bun.sh/) or [Node.js](https://nodejs.org/) 18+
+- A [Convex](https://convex.dev/) account
+
+### Setup
 
 ```bash
-npm install
-npm run dev
+# Install dependencies
+bun install
+
+# Set up Convex (creates a new project and generates types)
+bunx convex dev --once
+
+# Start development server
+bun run dev
 ```
+
+### Environment Variables
+
+Create a `.env.local` file:
+
+```
+CONVEX_DEPLOYMENT=your-convex-deployment-url
+VITE_CONVEX_URL=your-convex-url
+```
+
+### Build & Deploy
+
+```bash
+# Build for production
+bun run build
+
+# Preview build
+bun run preview
+```
+
+For Vercel deployment, the `vercel.json` is pre-configured with SPA routing rewrites.
+
+## Kingdom Motto
+
+*Omnividens, Omnipotens, Omniaeternus*
 
 ---
 
-© 2026 The Royal Kissi Kingdom. All rights reserved.
+© 2026 The Royal Kissi Kingdom
