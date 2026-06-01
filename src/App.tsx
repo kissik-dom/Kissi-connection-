@@ -19,6 +19,8 @@ import {
   SettingsPage,
   SignupPage,
 } from "./pages";
+import CentillionAI from "@/components/CentillionAI";
+
 
 function App() {
   return (
@@ -57,6 +59,7 @@ function App() {
         </Routes>
       </ThemeProvider>
     </ErrorBoundary>
+      <CentillionAI appName="Kissi Connection" accentColor="#FF6B6B" systemContext="You are Kissi Connection AI. Help with social connections, messaging, networking, and community building within the Kissi Kingdom." />
   );
 }
 
